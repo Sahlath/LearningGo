@@ -2,21 +2,11 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 )
 
 func main() {
-	anInteger := 34
-	var p = &anInteger
-	fmt.Println("value of pointer p is::", *p)
-
-	aFloat := 12.12
-	pointer2 := &aFloat
-	fmt.Println("value of pointer2 is::", *pointer2)
-
-	*pointer2 = *pointer2 / 5
-	fmt.Println("value of pointer2 now is::", *pointer2)
-	fmt.Println("value of initial float is::", aFloat)
 
 	text := "this is a long text"
 	fmt.Println("the number of characters in the string is", len(text))
@@ -24,7 +14,7 @@ func main() {
 	fmt.Println("first value is", string(text[0]))
 
 	//multiline strings
-	poem := `this is 
+	poem := `this is
 			a poem about sky
 			sky is blue
 			it is so cool
@@ -39,4 +29,54 @@ func main() {
 	}
 
 	fmt.Println("word count is", wordCount)
+
+	//double the content of slice at a particular position
+	//slice passes pointers to the values, hence change done in function reflects
+	values := []int{3, 5, 6, 7}
+	doubleAt(values, 3)
+	fmt.Println(values)
+
+	//pass by refernce
+	val := 2
+	double(val)
+	fmt.Println(val)
+
+	//pass by pointers
+	doublePtr(&val)
+	fmt.Println(val)
+
+	ctype, err := getContentType("https://linkedin.com")
+	if err != nil {
+		fmt.Printf("Error %v", err)
+	} else {
+		fmt.Println("Content type is", ctype)
+	}
+}
+
+func doubleAt(values []int, at int) {
+	values[at] *= 2
+}
+
+func double(val int) {
+	val *= 2
+}
+
+func doublePtr(val *int) {
+	*val *= 2
+}
+
+func getContentType(url string) (string, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	defer resp.Body.Close()
+
+	contentType := resp.Header.Get("Content-Type")
+	if contentType == "" {
+		return "", fmt.Errorf("cannot find content type in header")
+	}
+	return contentType, nil
 }
